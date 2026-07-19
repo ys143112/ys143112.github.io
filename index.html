@@ -429,9 +429,9 @@
         let localLikes = {};
 
         // Establish cloud connectivity channels
+        // 익명 로그인 에러를 건너뛰도록 수정한 연결 함수
         async function startFirebase() {
             try {
-                // apiKey가 비어있으면 처음부터 예외를 발생시켜 명확하게 로컬 모드로 넘어가도록 유도합니다.
                 if (!firebaseConfig.apiKey || firebaseConfig.apiKey.trim() === "") {
                     throw new Error("Missing Firebase API Key. Running in Local Offline Mode.");
                 }
@@ -440,12 +440,7 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
+                // 익명 로그인 단계를 생략하고 바로 컬렉션 참조를 생성합니다.
                 postsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
                 commentsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'comments');
 

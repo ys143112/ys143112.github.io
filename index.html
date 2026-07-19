@@ -49,8 +49,10 @@
             line-height: 1.8;
             color: #334155;
         }
+        /* height: auto를 추가하여 고양이 사진이 찌그러지지 않도록 수정했습니다 */
         .ql-editor img {
             max-width: 100%;
+            height: auto !important;
             border-radius: 12px;
             margin: 16px auto;
             display: block;
@@ -67,9 +69,10 @@
             border-bottom-right-radius: 12px;
             border-color: #e2e8f0;
         }
-        /* Content styles rendered inside our viewer */
+        /* 외부 뷰어 영역에서도 사진 비율이 정상적으로 유지되도록 height: auto를 추가했습니다 */
         .rendered-content img {
             max-width: 100%;
+            height: auto !important;
             border-radius: 12px;
             margin: 20px auto;
             display: block;
@@ -402,8 +405,10 @@
 
         // Firebase Identification Configuration Link
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'yeonsoo-tistory-blog';
+        
+        // 중요: 온라인 연결을 사용하려면 아래 apiKey 란에 본인의 Firebase Web API 키를 입력해 주세요.
         const defaultFirebaseConfig = {
-            apiKey: "",
+            apiKey: "", 
             authDomain: "aura-block-blog.firebaseapp.com",
             projectId: "aura-block-blog",
             storageBucket: "aura-block-blog.appspot.com",
@@ -424,6 +429,11 @@
         // Establish cloud connectivity channels
         async function startFirebase() {
             try {
+                // apiKey가 비어있으면 처음부터 예외를 발생시켜 명확하게 로컬 모드로 넘어가도록 유도합니다.
+                if (!firebaseConfig.apiKey) {
+                    throw new Error("Missing Firebase API Key. Running in Local Offline Mode.");
+                }
+
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -440,7 +450,7 @@
                 listenToPostStream();
             } catch (err) {
                 console.error("Cloud connection failed, fallback to local buffer active:", err);
-                notifyUser("warning", "오프라인 모드", "네트워크 접속이 느려 브라우저 로컬 저장고에 임시 연결합니다.");
+                notifyUser("info", "로컬 모드 활성화", "안전하게 브라우저 로컬 저장고에 임시 연결합니다.");
                 loadFallbackOfflinePosts();
             }
         }
@@ -616,7 +626,9 @@
             document.getElementById('postsSection').classList.add('hidden');
             document.getElementById('postDetailSection').classList.remove('hidden');
 
-            startSyncComments(post.id);
+            if (firebaseConfig.apiKey) {
+                startSyncComments(post.id);
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
@@ -785,11 +797,14 @@
             };
 
             try {
+                if (!firebaseConfig.apiKey) {
+                    throw new Error("Offline mode active.");
+                }
                 await addDoc(commentsCollectionRef, payload);
                 bodyInput.value = "";
             } catch (err) {
                 console.error("Comment delivery failed:", err);
-                notifyUser("error", "연결 지연", "데이터가 정상적으로 저장되지 못했습니다.");
+                notifyUser("warning", "로컬 모드", "현재 오프라인 저장소 모드 상태이므로 댓글 전송이 차단됩니다.");
             }
         };
 
@@ -818,6 +833,9 @@
             localLikes[post.id] = true;
 
             try {
+                if (!firebaseConfig.apiKey) {
+                    throw new Error("Offline mode.");
+                }
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', post.id);
                 await updateDoc(docRef, { likes: updateCount });
                 
@@ -1056,6 +1074,9 @@
             };
 
             try {
+                if (!firebaseConfig.apiKey) {
+                    throw new Error("Local saving mock configuration activation.");
+                }
                 if (editId) {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', editId);
                     await updateDoc(docRef, payload);
@@ -1067,8 +1088,8 @@
                 closeWriteModal();
                 showHome();
             } catch (err) {
-                console.error("Save failure:", err);
-                notifyUser("error", "전송 지연", "네트워크 실시간 데이터 통신 중 에러가 발생했습니다.");
+                console.error("Save failure, running local fallback storage injection:", err);
+                notifyUser("warning", "임시 차단", "온라인 키 입력이 누락되어 원격 서버 저장이 제한됩니다.");
             }
         };
 
@@ -1077,12 +1098,16 @@
 
             if (confirm("경고! 정말로 작성된 일지를 보관소에서 완전히 영구 소멸시키겠습니까?")) {
                 try {
+                    if (!firebaseConfig.apiKey) {
+                        throw new Error("No Key.");
+                    }
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', currentPost.id);
                     await deleteDoc(docRef);
                     notifyUser("success", "삭제 처리 완료", "일지가 깔끔하게 파기되었습니다.");
                     showHome();
                 } catch (err) {
                     console.error("Delete process crashed:", err);
+                    notifyUser("error", "삭제 실패", "클라우드 서비스가 연결되어 있지 않습니다.");
                 }
             }
         };
@@ -1112,6 +1137,9 @@
             };
 
             try {
+                if (!apiKey) {
+                    throw new Error("Gemini Key is missing.");
+                }
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1132,7 +1160,7 @@
                 }
             } catch (err) {
                 console.error("Gemini model connectivity lost:", err);
-                notifyUser("error", "연결 실패", "네트워크 지연으로 인공지능 통신이 임시 거부되었습니다.");
+                notifyUser("error", "연결 실패", "인공지능 비서 열쇠(apiKey)가 설정되지 않아 호출을 거부했습니다.");
             } finally {
                 aiIcon.className = "fa-solid fa-robot text-xs";
                 aiText.innerText = "AI 초안 작성하기";

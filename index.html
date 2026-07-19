@@ -3,94 +3,1237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 작업 다이어리</title>
+    <title>moozi portfolio style blog</title>
+    <!-- Tailwind CSS for modern responsive utility design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Premium Google Fonts: Noto Sans KR for comfortable reading -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons for layout actions -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Quill WYSIWYG Editor styling and scripts (Enables natural Naver-style inline text & image editing) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
     <style>
-        /* 웹사이트를 예쁘게 꾸며주는 마법 스타일(CSS) 공간입니다 */
         body {
-            font-family: 'Malgun Gothic', sans-serif;
-            background-color: #fafafa;
-            color: #333333;
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #ffffff;
         }
-        .container {
-            max-width: 600px;
-            width: 100%;
+        /* Style for the fixed left sidebar like image_96a9a1.jpg */
+        .sidebar-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), 
+                              url('https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
         }
-        header {
-            border-bottom: 2px solid #eeeeee;
-            padding-bottom: 20px;
-            margin-bottom: 40px;
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
         }
-        h1 {
-            font-size: 24px;
-            color: #111111;
-            margin: 0;
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
-        p.subtitle {
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Override Quill editor to fit beautifully into our design scheme */
+        .ql-editor {
+            min-height: 320px;
             font-size: 14px;
-            color: #888888;
-            margin: 5px 0 0 0;
+            line-height: 1.8;
+            color: #334155;
         }
-        .diary-list {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
+        .ql-editor img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 16px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        /* 일기를 쓸 때마다 이 상자 모양으로 예쁘게 보일 거예요 */
-        .diary-item {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .ql-toolbar.ql-snow {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            border-color: #e2e8f0;
+            background-color: #f8fafc;
         }
-        .date {
-            font-size: 12px;
-            color: #0066cc;
-            font-weight: bold;
+        .ql-container.ql-snow {
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-color: #e2e8f0;
         }
-        .diary-title {
-            font-size: 18px;
-            margin: 5px 0 10px 0;
-            color: #222222;
+        /* Content styles rendered inside our viewer */
+        .rendered-content img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
         }
-        .content {
-            font-size: 15px;
-            line-height: 1.6;
-            color: #444444;
+        .rendered-content p {
+            margin-bottom: 1.25rem;
+            line-height: 1.8;
+            font-size: 14px;
+            color: #2c3e50;
         }
     </style>
 </head>
-<body>
+<body class="text-slate-800 min-h-screen flex flex-col md:flex-row">
 
-    <div class="container">
-        <!-- 블로그의 대문(제목) 부분입니다 -->
-        <header>
-            <h1>나의 작업 다이어리</h1>
-            <p class="subtitle">나의 프로젝트와 업무 기록을 차곡차곡 쌓아가는 공간</p>
-        </header>
+    <!-- Left Fixed Sidebar (Mobile layout shifts to top bar) -->
+    <aside class="w-full md:w-[280px] md:fixed md:top-0 md:bottom-0 md:left-0 z-30 sidebar-bg text-white flex flex-col justify-between p-6 shadow-xl shrink-0">
+        <div class="space-y-8">
+            <!-- Sidebar Header & Toggle for Mobile -->
+            <div class="flex items-center justify-between md:block">
+                <div class="flex items-center space-x-3 md:block md:space-x-0 md:text-center">
+                    <!-- Profile image: Double click to login secretly -->
+                    <div class="relative inline-block group">
+                        <img id="profileAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop" 
+                             ondblclick="triggerSecretLogin()" 
+                             class="w-16 h-16 md:w-24 md:h-24 rounded-full mx-auto border-2 border-white/50 cursor-pointer hover:border-teal-400 transition duration-300 shadow-md"
+                             alt="Profile avatar"
+                             title="이곳을 더블클릭하면 주인장 모드가 열립니다.">
+                        <span class="absolute bottom-1 right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
+                    </div>
+                    
+                    <h1 class="text-xl md:text-2xl font-bold tracking-wider mt-3 font-mono text-center cursor-pointer hover:text-teal-300 transition" onclick="showHome()">moozi</h1>
+                    <p class="text-xs text-white/70 mt-1 md:text-center font-light">나의 프로젝트 & 일상 기록 아카이브</p>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileSidebar()" class="md:hidden p-2 text-white hover:text-teal-300 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
 
-        <!-- 일기장 본문입니다. 여기에 앞으로 일기를 추가하면 됩니다 -->
-        <main class="diary-list">
+            <!-- Navigation & Search Options (Matching styling in image_96a9a1.jpg) -->
+            <div id="sidebarMenuContent" class="hidden md:block space-y-6">
+                <!-- Search box in sidebar -->
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-white/50">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="sidebarSearch" oninput="handleSearch(this.value)" placeholder="글 검색하기..." class="w-full pl-8 pr-3 py-2 bg-white/10 hover:bg-white/15 focus:bg-white/25 text-xs text-white placeholder-white/40 border border-white/10 rounded-lg focus:outline-none transition-all">
+                </div>
+
+                <!-- Custom Menu Links -->
+                <nav class="space-y-1">
+                    <button onclick="showHome()" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-xs font-semibold flex items-center space-x-2.5 transition">
+                        <i class="fa-solid fa-house text-white/70"></i>
+                        <span>홈으로 이동</span>
+                    </button>
+                    <div class="border-b border-white/10 my-2"></div>
+                </nav>
+
+                <!-- Category Accordion (Populated Dynamically) -->
+                <div class="space-y-2">
+                    <h4 class="text-[10px] font-bold text-white/40 uppercase tracking-widest px-3">Categories</h4>
+                    <div id="sidebarCategories" class="space-y-1 max-h-[220px] overflow-y-auto pr-1">
+                        <!-- Categories dynamic list -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer Status -->
+        <div id="sidebarFooter" class="hidden md:block pt-4 border-t border-white/10 text-[10px] text-white/40 space-y-2">
+            <p>© 2026 moozi. All rights reserved.</p>
+            <!-- Quiet Indicator for Admin mode -->
+            <div id="adminBadge" class="hidden inline-flex items-center space-x-1 px-2 py-0.5 bg-teal-500/20 text-teal-300 rounded border border-teal-500/30">
+                <i class="fa-solid fa-circle-user text-[8px]"></i>
+                <span class="font-bold uppercase tracking-wider">Owner Mode</span>
+            </div>
+            <!-- Invisible trigger to log out -->
+            <button id="logoutBtn" onclick="logoutAdmin()" class="hidden text-rose-300/80 hover:text-rose-400 underline cursor-pointer text-left block">로그아웃 하기</button>
+        </div>
+    </aside>
+
+    <!-- Main Right Content Frame (Pushed by fixed sidebar on Desktop) -->
+    <main class="flex-1 md:ml-[280px] bg-white min-h-screen flex flex-col">
+        
+        <!-- Subtle Floating Action Bar for Admin Only (Cleanly Hidden from Normal Guests) -->
+        <div id="adminActionBar" class="hidden bg-slate-900 text-white px-6 py-3 flex items-center justify-between shadow-md">
+            <span class="text-xs font-medium flex items-center space-x-1.5 text-teal-400">
+                <i class="fa-solid fa-user-lock animate-pulse"></i>
+                <span>주인장 제어 판넬이 활성화되었습니다.</span>
+            </span>
+            <button onclick="openWriteModal()" class="bg-teal-500 hover:bg-teal-600 text-slate-950 px-4 py-1.5 text-xs font-bold rounded-lg shadow-sm transition">
+                <i class="fa-solid fa-pen text-[10px] mr-1"></i> 새 글 올리기
+            </button>
+        </div>
+
+        <!-- Dynamic Viewports -->
+        <div class="max-w-4xl w-full mx-auto px-6 py-8 md:py-12 flex-1 flex flex-col justify-between">
+            <div>
+                <!-- Home / Posts Grid List View -->
+                <section id="postsSection" class="space-y-8">
+                    <!-- Search Status Alert -->
+                    <div id="searchAlert" class="hidden bg-slate-50 border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl text-xs flex items-center justify-between">
+                        <span id="searchAlertText">필터 가동 중...</span>
+                        <button onclick="clearSearch()" class="text-teal-600 hover:text-teal-700 font-bold underline">초기화</button>
+                    </div>
+
+                    <!-- Post Feed Lists -->
+                    <div id="postGrid" class="space-y-12">
+                        <!-- Loading spinner -->
+                        <div class="py-20 text-center space-y-3">
+                            <i class="fa-solid fa-spinner animate-spin text-3xl text-teal-500"></i>
+                            <p class="text-xs text-slate-400">기록 보관소 데이터 연결 중...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Detailed Post Viewer (Single article viewing mode) -->
+                <article id="postDetailSection" class="hidden space-y-8">
+                    <!-- Navigation line -->
+                    <button onclick="showHome()" class="inline-flex items-center space-x-1 text-xs text-slate-400 hover:text-teal-600 transition">
+                        <i class="fa-solid fa-chevron-left text-[9px]"></i>
+                        <span>목록으로 돌아가기</span>
+                    </button>
+
+                    <!-- Article Body Area -->
+                    <div class="space-y-6">
+                        <div class="space-y-3">
+                            <span id="detailCategory" class="text-teal-600 font-bold text-xs uppercase tracking-wide">Category</span>
+                            <h2 id="detailTitle" class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">Post Title</h2>
+                            <div class="flex items-center space-x-3 text-xs text-slate-400">
+                                <span id="detailAuthor" class="font-medium text-slate-600">moozi</span>
+                                <span>•</span>
+                                <span id="detailDate">Date</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Rich HTML Output -->
+                        <div id="detailBody" class="rendered-content border-t border-slate-100 pt-6 prose prose-slate max-w-none">
+                            <!-- Custom inline rich text rendering output -->
+                        </div>
+
+                        <!-- Post Likes (공감) -->
+                        <div class="flex items-center justify-center py-6 border-y border-slate-100">
+                            <button onclick="likeCurrentPost()" id="likeBtn" class="px-5 py-2 rounded-full border border-slate-200 hover:border-rose-200 hover:bg-rose-50 text-slate-500 hover:text-rose-500 transition-all flex items-center space-x-2 text-xs font-semibold shadow-sm">
+                                <i id="likeIcon" class="fa-regular fa-heart"></i>
+                                <span>공감</span>
+                                <span id="detailLikesCount" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Category Other Posts Index (Exactly mimicking image_96a9a1.jpg bottom card) -->
+                        <div id="relatedPostsCard" class="bg-slate-50 border border-slate-100 rounded-xl p-5 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                <i class="fa-solid fa-list text-teal-600"></i>
+                                <span>'<span id="relatedCategoryName">카테고리</span>' 카테고리의 다른 글 보기</span>
+                            </h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-[11px] text-slate-500">
+                                    <tbody id="relatedPostsTableBody" class="divide-y divide-slate-200/50">
+                                        <!-- Dynamically generated rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Admin only controls on page details -->
+                        <div id="detailAdminControls" class="hidden flex justify-end space-x-2 pt-2">
+                            <button onclick="editCurrentPost()" class="px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800 bg-slate-100 rounded-lg transition"><i class="fa-regular fa-pen-to-square mr-1"></i>수정</button>
+                            <button onclick="deleteCurrentPost()" class="px-3.5 py-1.5 text-xs font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition"><i class="fa-regular fa-trash-can mr-1"></i>삭제</button>
+                        </div>
+                    </div>
+
+                    <!-- Comments Component -->
+                    <div class="border-t border-slate-100 pt-8 space-y-6">
+                        <h4 class="font-bold text-sm text-slate-800 flex items-center space-x-1.5">
+                            <i class="fa-regular fa-comments text-slate-500"></i>
+                            <span>댓글 쓰기</span>
+                            <span id="commentCount" class="text-teal-600 text-xs">0</span>
+                        </h4>
+
+                        <!-- Simple timeline list of comments -->
+                        <div id="commentsContainer" class="space-y-4">
+                            <!-- Populated with dynamic messages -->
+                        </div>
+
+                        <!-- New comment write form -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-150 space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="text" id="commentAuthor" placeholder="닉네임 (기본: 익명)" class="px-3 py-2 text-xs border border-slate-200 bg-white rounded-lg focus:outline-none focus:border-teal-400 transition">
+                                <select id="commentIcon" class="px-2.5 py-2 text-xs border border-slate-200 bg-white rounded-lg focus:outline-none focus:border-teal-400 transition">
+                                    <option value="🍀">🍀 행운의 클로버</option>
+                                    <option value="💻">💻 개발하는 부엉이</option>
+                                    <option value="☕">☕ 따뜻한 커피</option>
+                                    <option value="🔍">🔍 연구하는 돋보기</option>
+                                    <option value="💡">💡 아이디어 전구</option>
+                                </select>
+                            </div>
+                            <textarea id="commentBody" placeholder="선플은 힘이 됩니다! 따뜻한 한 줄 코멘트를 자유롭게 달아주세요." class="w-full p-3 text-xs border border-slate-200 bg-white rounded-lg focus:outline-none focus:border-teal-400 transition resize-none h-16"></textarea>
+                            <div class="flex justify-end">
+                                <button onclick="addComment()" class="bg-slate-900 hover:bg-teal-600 text-white px-4 py-1.5 text-xs font-semibold rounded-lg transition shadow-sm">
+                                    등록하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Global Footer -->
+            <footer class="mt-20 pt-8 border-t border-slate-100 text-center text-[10px] text-slate-400">
+                <p>Designed and Built on Github Pages with dynamic integration. Double-click sidebar profile to login.</p>
+            </footer>
+        </div>
+    </main>
+
+    <!-- WYSIWYG Single Document Text Editor Overlay Modal (Admin Only) -->
+    <div id="writeModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl transition-all duration-300 transform scale-95 opacity-0" id="writeModalContent">
             
-            <!-- 첫 번째 일기 예시 (새 일기를 쓸 때는 이 아래 공간에 똑같이 복사해서 쓰면 돼요!) -->
-            <article class="diary-item">
-                <div class="date">2026년 7월 19일</div>
-                <h2 class="diary-title">첫 번째 기록: 블로그 시작!</h2>
-                <p class="content">
-                    오늘 드디어 깃허브에 나만의 빈 다이어리 블로그를 만들었습니다. 
-                    앞으로 이곳에 내가 했던 일들과 프로젝트 과정을 하나씩 기록해 나갈 예정입니다. 
-                    파이팅!
-                </p>
-            </article>
+            <!-- Modal Head -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-pen-nib text-teal-600"></i>
+                    <span id="modalHeaderTitle">새로운 기록 남기기 (통합 에디터)</span>
+                </span>
+                <button onclick="closeWriteModal()" class="text-slate-400 hover:text-slate-600 text-sm transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-            <!-- 💡 새로운 일기를 쓰고 싶다면? 바로 여기에 복사해서 넣으세요! -->
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                <input type="hidden" id="editPostId" value="">
 
-        </main>
+                <!-- Title & Category inputs -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">글 제목</label>
+                        <input type="text" id="postTitleInput" placeholder="제목을 시원하게 적어보세요" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-400 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">카테고리</label>
+                        <input type="text" id="postCategoryInput" placeholder="예: 개발, 일기, 포트폴리오" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-400 transition">
+                    </div>
+                </div>
+
+                <!-- Tags Input -->
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">태그 (쉼표로 구분)</label>
+                    <input type="text" id="postTagsInput" placeholder="예: javascript, tistory, 일상" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-400 transition">
+                </div>
+
+                <!-- Inline Text & Image Editor Core -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    
+                    <!-- Integrated Natural Quill Editor (Left Block) -->
+                    <div class="lg:col-span-8 flex flex-col space-y-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">글 본문 작성 영역</label>
+                        <div id="editorToolbar"></div>
+                        <div id="editorContent" class="bg-white"></div>
+                        <input type="file" id="editorImageInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                        <p class="text-[10px] text-slate-400">네이버 블로그처럼 글 중간에 글을 작성하고, 상단 툴바의 사진 아이콘을 누르면 원하는 위치에 바로 이미지가 삽입됩니다.</p>
+                    </div>
+
+                    <!-- AI draft writing helper panel (Right Block) -->
+                    <div class="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-teal-700 flex items-center space-x-1">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>인공지능 도우미</span>
+                            </span>
+                            <p class="text-[10px] text-slate-500 leading-relaxed">오늘 남기고픈 핵심 핵심 키워드를 입력해 보세요. AI가 본문 영역에 적합한 초안 단락을 대신 매끄럽게 작성해 줍니다.</p>
+                        </div>
+                        <textarea id="aiPrompt" placeholder="예시: 리액트 훅을 주제로 깔끔한 테크 포스트 서론 문단 한 편 써줘" class="w-full flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-400 resize-none h-24"></textarea>
+                        <button onclick="requestAiDraft()" class="w-full bg-slate-900 hover:bg-teal-600 text-white py-2 text-xs font-semibold rounded-lg shadow transition flex items-center justify-center space-x-1.5">
+                            <i id="aiIcon" class="fa-solid fa-robot text-xs"></i>
+                            <span id="aiText">AI 초안 작성하기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Controls -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-2">
+                <button onclick="closeWriteModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">취소</button>
+                <button onclick="savePost()" class="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-teal-600 rounded-lg transition shadow-sm">포스트 보관하기</button>
+            </div>
+        </div>
     </div>
 
+    <!-- Admin Security Secret Password Prompt Overlay -->
+    <div id="authModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-6 text-center space-y-5">
+            <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-full mx-auto flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-sm font-bold text-slate-900">블로그 주인장 인증</h3>
+                <p class="text-xs text-slate-400">보안 통과 암호를 입력해 글쓰기 권한을 활성화하세요.</p>
+            </div>
+            <input type="password" id="adminPasswordInput" placeholder="기본 비밀번호: 1234" class="w-full px-4 py-2.5 text-center border border-slate-200 rounded-xl focus:border-teal-400 focus:outline-none transition text-xs">
+            <div class="flex space-x-2 text-xs">
+                <button onclick="closeAuthModal()" class="flex-1 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl transition">취소</button>
+                <button onclick="authenticateAdmin()" class="flex-1 py-2 bg-slate-900 hover:bg-teal-600 text-white rounded-xl font-bold transition">인증 성공하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Dialog Modal (Replaces unsafe window.alerts) -->
+    <div id="alertModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-xs overflow-hidden shadow-2xl p-5 text-center space-y-4">
+            <div id="alertIconBox" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center text-lg">
+                <!-- Icon loaded via state -->
+            </div>
+            <div class="space-y-1">
+                <h4 id="alertTitle" class="text-xs font-bold text-slate-900">알림</h4>
+                <p id="alertMessage" class="text-[11px] text-slate-400 leading-relaxed"></p>
+            </div>
+            <button onclick="closeAlertDialog()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition">확인</button>
+        </div>
+    </div>
+
+    <!-- Database integration structure -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, updateDoc, deleteDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Identification Configuration Link
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'moozi-tistory-blog';
+        const defaultFirebaseConfig = {
+            apiKey: "",
+            authDomain: "aura-block-blog.firebaseapp.com",
+            projectId: "aura-block-blog",
+            storageBucket: "aura-block-blog.appspot.com",
+            messagingSenderId: "12345",
+            appId: "1:12345:web:12345"
+        };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let auth, db, postsCollectionRef, commentsCollectionRef;
+        let blogPosts = [];
+        let filteredPosts = [];
+        let currentPost = null;
+        let isAdmin = false;
+        let quill = null;
+        let localLikes = {};
+
+        // Establish cloud connectivity channels
+        async function startFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                postsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+                commentsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'comments');
+
+                listenToPostStream();
+            } catch (err) {
+                console.error("Cloud connection failed, fallback to local buffer active:", err);
+                notifyUser("warning", "오프라인 모드", "네트워크 접속이 느려 브라우저 로컬 저장고에 임시 연결합니다.");
+                loadFallbackOfflinePosts();
+            }
+        }
+
+        // Realtime streaming synchronization observer
+        function listenToPostStream() {
+            onSnapshot(postsCollectionRef, (snapshot) => {
+                const fetched = [];
+                snapshot.forEach((doc) => {
+                    fetched.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Standard chronological reverse order
+                blogPosts = fetched.sort((a, b) => {
+                    const tA = a.date ? new Date(a.date) : new Date(0);
+                    const tB = b.date ? new Date(b.date) : new Date(0);
+                    return tB - tA;
+                });
+
+                filteredPosts = [...blogPosts];
+                renderSidebarCategories();
+                renderPostsGrid();
+
+                if (currentPost) {
+                    const refreshed = blogPosts.find(p => p.id === currentPost.id);
+                    if (refreshed) {
+                        currentPost = refreshed;
+                        renderPostDetail(refreshed);
+                    }
+                }
+            }, (error) => {
+                console.error("Live subscription failure:", error);
+                notifyUser("error", "동기화 에러", "블로그 자료를 가져오지 못해 로컬 저장을 임시 가동합니다.");
+            });
+        }
+
+        // Offline Fallback Dummy dataset
+        function loadFallbackOfflinePosts() {
+            blogPosts = [
+                {
+                    id: "local-first-welcome",
+                    title: "반갑습니다! 통합 에디터가 내장된 나만의 기록 정원입니다 🍀",
+                    category: "소개",
+                    tags: ["가이드", "에디터", "첫걸음"],
+                    content: `
+                        <p>안녕하세요! 복잡했던 블록 상자 시스템을 던져버리고, 언제 어디서든 자유롭게 타자를 치고 사진을 심을 수 있는 <strong>Quill 통합 에디터 블로그</strong>를 오픈했습니다.</p>
+                        <p>이곳은 moozi의 포트폴리오 스타일을 벤치마킹하여, 아주 깔끔하고 감각적인 디자인 레이아웃을 취하고 있습니다.</p>
+                        <p><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=800&auto=format&fit=crop" alt="Coding Background"></p>
+                        <p>글을 주르륵 써 내려가다가, 이미지를 넣고 싶은 위치에서 툴바의 사진 버튼을 딸깍 클릭하면 곧바로 그 자리에 또렷하고 가벼운 사진이 깔끔하게 자리 잡습니다.</p>
+                        <p>감상해 보시고 자유롭게 의견이나 댓글을 남겨 소통해 보세요!</p>
+                    `,
+                    date: new Date().toISOString(),
+                    likes: 8
+                }
+            ];
+            filteredPosts = [...blogPosts];
+            renderSidebarCategories();
+            renderPostsGrid();
+        }
+
+        // Sidebar dynamic categories matching image_96a9a1.jpg layout
+        function renderSidebarCategories() {
+            const container = document.getElementById('sidebarCategories');
+            
+            const mapping = {};
+            blogPosts.forEach(p => {
+                if (p.category) {
+                    mapping[p.category] = (mapping[p.category] || 0) + 1;
+                }
+            });
+
+            if (Object.keys(mapping).length === 0) {
+                container.innerHTML = `<p class="text-[10px] text-white/30 px-3">분류 폴더가 없습니다.</p>`;
+                return;
+            }
+
+            let catHtml = `
+                <button onclick="filterByCategory('')" class="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition flex items-center justify-between">
+                    <span>전체보기</span>
+                    <span class="text-[9px] bg-white/20 text-white/90 px-2 py-0.5 rounded-full font-bold">${blogPosts.length}</span>
+                </button>
+            `;
+
+            for (const [cat, count] of Object.entries(mapping)) {
+                catHtml += `
+                    <button onclick="filterByCategory('${cat}')" class="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition flex items-center justify-between">
+                        <span># ${cat}</span>
+                        <span class="text-[9px] bg-teal-500/30 text-teal-300 px-2 py-0.5 rounded-full font-bold">${count}</span>
+                    </button>
+                `;
+            }
+            container.innerHTML = catHtml;
+        }
+
+        // Render main post feed index lists
+        function renderPostsGrid() {
+            const grid = document.getElementById('postGrid');
+
+            if (filteredPosts.length === 0) {
+                grid.innerHTML = `
+                    <div class="py-20 text-center text-slate-400 space-y-2">
+                        <i class="fa-solid fa-shapes text-4xl text-slate-200"></i>
+                        <p class="font-bold text-slate-500 text-xs">작성된 기록 카드가 없습니다.</p>
+                        <p class="text-[10px] text-slate-400">주인장 모드로 들어와 새로운 지식을 적어보세요.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            filteredPosts.forEach(post => {
+                const dateStr = new Date(post.date).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const tagsMarkup = (post.tags || []).map(t => `<span class="bg-slate-100 text-slate-500 text-[10px] px-2.5 py-0.5 rounded-md">#${t}</span>`).join(' ');
+
+                // Extract summary plain text
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = post.content || "";
+                const plainTextSummary = tempDiv.textContent || tempDiv.innerText || "";
+                const previewSnippet = plainTextSummary.length > 200 ? plainTextSummary.substring(0, 200) + '...' : plainTextSummary;
+
+                // Extract first image inside content to show as preview thumbnails
+                const inlineImgs = tempDiv.getElementsByTagName('img');
+                let thumbnailHtml = "";
+                if (inlineImgs.length > 0) {
+                    thumbnailHtml = `
+                        <div class="w-full md:w-44 h-28 bg-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm border border-slate-100">
+                            <img src="${inlineImgs[0].src}" class="w-full h-full object-cover hover:scale-105 transition-all duration-300" alt="post thumbnail">
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="flex flex-col md:flex-row gap-6 pb-10 border-b border-slate-100 hover:border-slate-200 transition">
+                        ${thumbnailHtml}
+                        <div class="flex-1 space-y-3">
+                            <div class="flex items-center space-x-2 text-xs">
+                                <span onclick="filterByCategory('${post.category}')" class="cursor-pointer text-teal-600 font-bold hover:underline uppercase text-[10px]">${post.category || '일반'}</span>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-slate-400 text-[10px]">${dateStr}</span>
+                            </div>
+                            <h3 onclick="viewPostDetail('${post.id}')" class="cursor-pointer text-xl font-bold text-slate-900 hover:text-teal-600 transition leading-snug tracking-tight">${post.title}</h3>
+                            <p class="text-slate-500 text-xs md:text-sm leading-relaxed line-clamp-3">${previewSnippet}</p>
+                            <div class="flex items-center justify-between pt-2">
+                                <div class="flex flex-wrap gap-1">
+                                    ${tagsMarkup}
+                                </div>
+                                <button onclick="viewPostDetail('${post.id}')" class="text-xs text-slate-800 font-bold hover:text-teal-600 transition flex items-center space-x-1">
+                                    <span>읽기</span>
+                                    <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Show detailed single post window
+        window.viewPostDetail = function(id) {
+            const post = blogPosts.find(p => p.id === id);
+            if (!post) return;
+
+            currentPost = post;
+            renderPostDetail(post);
+
+            document.getElementById('postsSection').classList.add('hidden');
+            document.getElementById('postDetailSection').classList.remove('hidden');
+
+            startSyncComments(post.id);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Render detailed post contents and the related posts indexing table (mimicking image_96a9a1.jpg)
+        function renderPostDetail(post) {
+            document.getElementById('detailCategory').innerText = post.category || '기타';
+            document.getElementById('detailTitle').innerText = post.title;
+
+            const date = new Date(post.date);
+            document.getElementById('detailDate').innerText = date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            document.getElementById('detailBody').innerHTML = post.content || "";
+
+            // Likes configuration button
+            const countEl = document.getElementById('detailLikesCount');
+            const iconEl = document.getElementById('likeIcon');
+            const likeBtn = document.getElementById('likeBtn');
+
+            countEl.innerText = post.likes || 0;
+            if (localLikes[post.id]) {
+                iconEl.className = "fa-solid fa-heart text-rose-500";
+                likeBtn.classList.add('border-rose-200', 'bg-rose-50');
+            } else {
+                iconEl.className = "fa-regular fa-heart";
+                likeBtn.classList.remove('border-rose-200', 'bg-rose-50');
+            }
+
+            // Set Admin Controls Visibility
+            const ctrlBar = document.getElementById('detailAdminControls');
+            if (isAdmin) {
+                ctrlBar.classList.remove('hidden');
+            } else {
+                ctrlBar.classList.add('hidden');
+            }
+
+            // Build Related posts panel matching the table inside image_96a9a1.jpg
+            const relatedCatName = document.getElementById('relatedCategoryName');
+            relatedCatName.innerText = post.category || '기타';
+
+            const relatedPostsTableBody = document.getElementById('relatedPostsTableBody');
+            
+            // Find articles sharing the same categories
+            const matchPosts = blogPosts.filter(p => p.category === post.category);
+            
+            if (matchPosts.length <= 1) {
+                relatedPostsTableBody.innerHTML = `
+                    <tr>
+                        <td class="py-3 text-center text-slate-400 font-light">카테고리 폴더에 다른 글이 아직 수록되지 않았습니다.</td>
+                    </tr>
+                `;
+            } else {
+                let relatedHtml = "";
+                matchPosts.forEach(rp => {
+                    const rpDate = new Date(rp.date).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    // Highlight currently open reading row
+                    const currentHighlightClass = rp.id === post.id ? 'font-bold text-teal-600 bg-teal-50/50' : 'hover:bg-slate-100/50 text-slate-700';
+
+                    relatedHtml += `
+                        <tr class="${currentHighlightClass} cursor-pointer transition" onclick="viewPostDetail('${rp.id}')">
+                            <td class="py-2.5 px-3 w-4/5 text-left truncate max-w-xs md:max-w-md">
+                                ${rp.id === post.id ? '<span class="text-[9px] bg-teal-100 text-teal-700 font-bold px-1.5 py-0.5 rounded mr-1.5">열람 중</span>' : ''}
+                                ${rp.title}
+                            </td>
+                            <td class="py-2.5 px-3 w-1/5 text-right font-mono text-[10px] text-slate-400">${rpDate}</td>
+                        </tr>
+                    `;
+                });
+                relatedPostsTableBody.innerHTML = relatedHtml;
+            }
+        }
+
+        // Realtime comments synchronizer pipeline
+        let commentsUnsubscribe = null;
+        function startSyncComments(postId) {
+            if (commentsUnsubscribe) {
+                commentsUnsubscribe();
+            }
+
+            commentsUnsubscribe = onSnapshot(commentsCollectionRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.postId === postId) {
+                        list.push({ id: doc.id, ...data });
+                    }
+                });
+
+                list.sort((a, b) => new Date(a.date) - new Date(b.date));
+                renderComments(list);
+            }, (err) => {
+                console.error("Comments connection break:", err);
+            });
+        }
+
+        function renderComments(list) {
+            const listContainer = document.getElementById('commentsContainer');
+            document.getElementById('commentCount').innerText = list.length;
+
+            if (list.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">첫 의견 댓글을 남겨 이웃들과 소통해 보세요.</p>`;
+                return;
+            }
+
+            let html = "";
+            list.forEach(c => {
+                const dateStr = new Date(c.date).toLocaleDateString('ko-KR', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                html += `
+                    <div class="bg-white border border-slate-150 rounded-xl p-4 flex items-start space-x-3 shadow-sm hover:border-slate-200 transition">
+                        <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-sm shadow-sm shrink-0">
+                            ${c.icon || '🍀'}
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-slate-800">${c.author || '익명'}</span>
+                                    <span class="text-[9px] text-slate-400 font-mono">${dateStr}</span>
+                                </div>
+                                ${isAdmin ? `<button onclick="deleteComment('${c.id}')" class="text-rose-500 hover:text-rose-700 transition" title="댓글 삭제"><i class="fa-regular fa-trash-can text-[10px]"></i></button>` : ''}
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">${c.body}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        // Add dynamic comment
+        window.addComment = async function() {
+            if (!currentPost) return;
+
+            const authorInput = document.getElementById('commentAuthor');
+            const bodyInput = document.getElementById('commentBody');
+            const iconInput = document.getElementById('commentIcon');
+
+            const bodyText = bodyInput.value.trim();
+            if (!bodyText) {
+                notifyUser("warning", "내용 부족", "댓글 내용을 정확히 입력하세요.");
+                return;
+            }
+
+            const payload = {
+                postId: currentPost.id,
+                author: authorInput.value.trim() || '익명',
+                icon: iconInput.value,
+                body: bodyText,
+                date: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(commentsCollectionRef, payload);
+                bodyInput.value = "";
+            } catch (err) {
+                console.error("Comment delivery failed:", err);
+                notifyUser("error", "연결 지연", "데이터가 정상적으로 저장되지 못했습니다.");
+            }
+        };
+
+        window.deleteComment = async function(commentId) {
+            if (!isAdmin) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'comments', commentId);
+                await deleteDoc(docRef);
+                notifyUser("success", "삭제 완료", "댓글이 안전하게 파기되었습니다.");
+            } catch (err) {
+                console.error("Comment delete failed:", err);
+            }
+        };
+
+        // Like current post
+        window.likeCurrentPost = async function() {
+            if (!currentPost) return;
+
+            const post = currentPost;
+            if (localLikes[post.id]) {
+                notifyUser("info", "알림", "이미 이 글에 공감을 반영하셨습니다. 대단히 고맙습니다!");
+                return;
+            }
+
+            const updateCount = (post.likes || 0) + 1;
+            localLikes[post.id] = true;
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', post.id);
+                await updateDoc(docRef, { likes: updateCount });
+                
+                // update local model immediately
+                currentPost.likes = updateCount;
+                renderPostDetail(currentPost);
+            } catch (err) {
+                console.error("Likes failed to upload:", err);
+                currentPost.likes = updateCount;
+                renderPostDetail(currentPost);
+            }
+        };
+
+        // Setup Quill integration configurations
+        function initQuillEditor() {
+            if (quill) return; // Prevent double creation
+
+            // Bind Custom Image Tool Actions
+            const ImageHandler = function() {
+                document.getElementById('editorImageInput').click();
+            };
+
+            quill = new Quill('#editorContent', {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image', 'code-block'],
+                            ['clean']
+                        ],
+                        handlers: {
+                            'image': ImageHandler
+                        }
+                    }
+                },
+                placeholder: '이곳에 글과 지식을 물 흐르듯 편하게 타이핑하고 마음에 드는 구석에 사진들을 배치해 보세요...'
+            });
+        }
+
+        // Intercept quill image selector to compress and save
+        window.handleImageSelection = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            notifyUser("info", "이미지 올리는 중...", "이미지를 깨끗하게 최적화하고 있습니다.");
+
+            const compressedBase64 = await compressImageOnCanvas(file);
+
+            // Get current user cursor position
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'image', compressedBase64);
+            quill.setSelection(range.index + 1);
+
+            // Clear input
+            document.getElementById('editorImageInput').value = "";
+        };
+
+        // Image compression math engine using HTML5 canvas
+        async function compressImageOnCanvas(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 780; // Optimized size for moozi blog
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // High fidelity clean compression to preserve details
+                        const base64 = canvas.toDataURL('image/jpeg', 0.72);
+                        resolve(base64);
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Hidden entrance protocols for owner
+        window.triggerSecretLogin = function() {
+            if (isAdmin) {
+                notifyUser("info", "알림", "이미 주인장(Owner) 권한이 작동되고 있습니다.");
+                return;
+            }
+            document.getElementById('adminPasswordInput').value = "";
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('adminPasswordInput').focus();
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').classList.add('hidden');
+        };
+
+        window.authenticateAdmin = function() {
+            const pass = document.getElementById('adminPasswordInput').value;
+            // Admin simple credentials pass gates
+            if (pass === "1234" || pass === "admin") {
+                isAdmin = true;
+                updateAdminSessionState();
+                closeAuthModal();
+                notifyUser("success", "인증 완료", "환영합니다, 주인장님! 이제 새로운 글 작성 및 삭제 권한이 열립니다.");
+            } else {
+                notifyUser("error", "보안 에러", "지정하신 비밀번호가 일치하지 않습니다.");
+            }
+        };
+
+        window.logoutAdmin = function() {
+            isAdmin = false;
+            updateAdminSessionState();
+            showHome();
+            notifyUser("info", "세션 아웃", "성공적으로 안전하게 로그아웃 되었습니다.");
+        };
+
+        function updateAdminSessionState() {
+            const panel = document.getElementById('adminActionBar');
+            const badge = document.getElementById('adminBadge');
+            const logout = document.getElementById('logoutBtn');
+
+            if (isAdmin) {
+                panel.classList.remove('hidden');
+                badge.classList.remove('hidden');
+                logout.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+                badge.classList.add('hidden');
+                logout.classList.add('hidden');
+            }
+
+            renderPostsGrid();
+            if (currentPost) {
+                renderPostDetail(currentPost);
+            }
+        }
+
+        // Open edit panel setup
+        window.openWriteModal = function() {
+            if (!isAdmin) return;
+
+            document.getElementById('modalHeaderTitle').innerText = "새로운 지식 기록하기";
+            document.getElementById('editPostId').value = "";
+            document.getElementById('postTitleInput').value = "";
+            document.getElementById('postCategoryInput').value = "";
+            document.getElementById('postTagsInput').value = "";
+            document.getElementById('aiPrompt').value = "";
+
+            initQuillEditor();
+            quill.setContents([]); // Clear content editors
+
+            openModalOverlay('writeModal');
+        };
+
+        window.editCurrentPost = function() {
+            if (!isAdmin || !currentPost) return;
+
+            document.getElementById('modalHeaderTitle').innerText = "포스트 내용 수정하기";
+            document.getElementById('editPostId').value = currentPost.id;
+            document.getElementById('postTitleInput').value = currentPost.title;
+            document.getElementById('postCategoryInput').value = currentPost.category || "";
+            document.getElementById('postTagsInput').value = (currentPost.tags || []).join(', ');
+            document.getElementById('aiPrompt').value = "";
+
+            initQuillEditor();
+            
+            // Set dynamic quill content blocks
+            quill.clipboard.dangerouslyPasteHTML(currentPost.content || "");
+
+            openModalOverlay('writeModal');
+        };
+
+        window.closeWriteModal = function() {
+            closeModalOverlay('writeModal');
+        };
+
+        function openModalOverlay(id) {
+            const m = document.getElementById(id);
+            const content = document.getElementById(id + 'Content');
+            m.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function closeModalOverlay(id) {
+            const m = document.getElementById(id);
+            const content = document.getElementById(id + 'Content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                m.classList.add('hidden');
+            }, 200);
+        }
+
+        // Save detailed record
+        window.savePost = async function() {
+            if (!isAdmin) return;
+
+            const editId = document.getElementById('editPostId').value;
+            const titleText = document.getElementById('postTitleInput').value.trim();
+            const categoryText = document.getElementById('postCategoryInput').value.trim();
+            const tagsText = document.getElementById('postTagsInput').value;
+            
+            // Get rich editor outputs html directly
+            const richHTML = quill.root.innerHTML;
+
+            if (!titleText) {
+                notifyUser("warning", "필수값 부족", "기록의 제목을 정확하게 기입해 주셔야 합니다.");
+                return;
+            }
+
+            const cleanTags = tagsText.split(',')
+                                    .map(t => t.trim())
+                                    .filter(t => t.length > 0);
+
+            const payload = {
+                title: titleText,
+                category: categoryText || '일반',
+                tags: cleanTags,
+                content: richHTML,
+                date: editId ? (blogPosts.find(p => p.id === editId)?.date || new Date().toISOString()) : new Date().toISOString(),
+                likes: editId ? (blogPosts.find(p => p.id === editId)?.likes || 0) : 0
+            };
+
+            try {
+                if (editId) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', editId);
+                    await updateDoc(docRef, payload);
+                    notifyUser("success", "수정 성공", "소중한 지식의 내용이 완벽하게 안전 변경 되었습니다.");
+                } else {
+                    await addDoc(postsCollectionRef, payload);
+                    notifyUser("success", "발행 성공", "글이 성공적으로 인터넷에 정갈하게 등재되었습니다.");
+                }
+                closeWriteModal();
+                showHome();
+            } catch (err) {
+                console.error("Save failure:", err);
+                notifyUser("error", "전송 지연", "네트워크 실시간 데이터 통신 중 에러가 발생했습니다.");
+            }
+        };
+
+        window.deleteCurrentPost = async function() {
+            if (!isAdmin || !currentPost) return;
+
+            if (confirm("경고! 정말로 작성된 일지를 보관소에서 완전히 영구 소멸시키겠습니까?")) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', currentPost.id);
+                    await deleteDoc(docRef);
+                    notifyUser("success", "삭제 처리 완료", "일지가 깔끔하게 파기되었습니다.");
+                    showHome();
+                } catch (err) {
+                    console.error("Delete process crashed:", err);
+                }
+            }
+        };
+
+        // AI model draft text generator module
+        window.requestAiDraft = async function() {
+            const promptVal = document.getElementById('aiPrompt').value.trim();
+            if (!promptVal) {
+                notifyUser("warning", "입력 부족", "인공지능 비서에게 전달할 가상의 요구사항을 입력하세요.");
+                return;
+            }
+
+            const aiIcon = document.getElementById('aiIcon');
+            const aiText = document.getElementById('aiText');
+
+            aiIcon.className = "fa-solid fa-spinner animate-spin text-xs";
+            aiText.innerText = "비서 작성 중...";
+
+            const apiKey = ""; // API Key secured and loaded dynamic
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: promptVal }] }],
+                systemInstruction: {
+                    parts: [{ text: "당신은 극도로 간결하고 깔끔한 어투를 구사하는 테크 전문 파워블로거 작가입니다. 부차적인 인사말이나 설명은 일체 배제하고 오직 사용자의 요청 주제에 부합하는 정갈한 블로그 본문 단락(HTML 단락 태그 형식 또는 맑은 어조)으로 2~3줄 가량의 알찬 글만 작성해 돌려주세요." }]
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    // Quill.js integration insertion safely
+                    const range = quill.getSelection(true);
+                    quill.clipboard.dangerouslyPasteHTML(range.index, `<p>${text.replace(/\n/g, '<br>')}</p>`);
+                    notifyUser("success", "문장 삽입 완료", "작성 위치에 인공지능이 서술한 글이 아름답게 스며들었습니다.");
+                    document.getElementById('aiPrompt').value = "";
+                } else {
+                    notifyUser("error", "AI 지연", "인공지능 모델이 응답을 정상 생산하지 못했습니다.");
+                }
+            } catch (err) {
+                console.error("Gemini model connectivity lost:", err);
+                notifyUser("error", "연결 실패", "네트워크 지연으로 인공지능 통신이 임시 거부되었습니다.");
+            } finally {
+                aiIcon.className = "fa-solid fa-robot text-xs";
+                aiText.innerText = "AI 초안 작성하기";
+            }
+        };
+
+        // Navigation resets
+        window.showHome = function() {
+            document.getElementById('postDetailSection').classList.add('hidden');
+            document.getElementById('postsSection').classList.remove('hidden');
+            currentPost = null;
+
+            if (commentsUnsubscribe) {
+                commentsUnsubscribe();
+            }
+        };
+
+        window.handleSearch = function(query) {
+            const word = query.toLowerCase().trim();
+            const alertBox = document.getElementById('searchAlert');
+            const alertText = document.getElementById('searchAlertText');
+
+            if (!word) {
+                clearSearch();
+                return;
+            }
+
+            filteredPosts = blogPosts.filter(p => 
+                p.title.toLowerCase().includes(word) ||
+                (p.tags || []).some(t => t.toLowerCase().includes(word)) ||
+                (p.category || "").toLowerCase().includes(word)
+            );
+
+            alertText.innerText = `검색 필터 작동 중: "${query}" (결과 ${filteredPosts.length}개)`;
+            alertBox.classList.remove('hidden');
+            showHome();
+            renderPostsGrid();
+        };
+
+        window.filterByCategory = function(catName) {
+            const alertBox = document.getElementById('searchAlert');
+            const alertText = document.getElementById('searchAlertText');
+
+            if (!catName) {
+                clearSearch();
+                return;
+            }
+
+            filteredPosts = blogPosts.filter(p => p.category === catName);
+            alertText.innerText = `분류 필터 작동 중: "${catName}" (결과 ${filteredPosts.length}개)`;
+            alertBox.classList.remove('hidden');
+            showHome();
+            renderPostsGrid();
+        };
+
+        window.clearSearch = function() {
+            document.getElementById('sidebarSearch').value = "";
+            document.getElementById('searchAlert').classList.add('hidden');
+            filteredPosts = [...blogPosts];
+            renderPostsGrid();
+        };
+
+        // Mobile responsive sidebar toggle
+        window.toggleMobileSidebar = function() {
+            const menu = document.getElementById('sidebarMenuContent');
+            menu.classList.toggle('hidden');
+        };
+
+        // Custom customAlert dialog modal systems to replace unsafe native window.alert
+        window.notifyUser = function(type, title, message) {
+            const modal = document.getElementById('alertModal');
+            const titleEl = document.getElementById('alertTitle');
+            const messageEl = document.getElementById('alertMessage');
+            const iconBox = document.getElementById('alertIconBox');
+
+            titleEl.innerText = title;
+            messageEl.innerText = message;
+
+            if (type === "success") {
+                iconBox.className = "w-10 h-10 rounded-full mx-auto flex items-center justify-center text-lg bg-emerald-100 text-emerald-600 shadow-inner";
+                iconBox.innerHTML = `<i class="fa-solid fa-check animate-bounce"></i>`;
+            } else if (type === "error") {
+                iconBox.className = "w-10 h-10 rounded-full mx-auto flex items-center justify-center text-lg bg-rose-100 text-rose-600 shadow-inner";
+                iconBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+            } else {
+                iconBox.className = "w-10 h-10 rounded-full mx-auto flex items-center justify-center text-lg bg-indigo-100 text-indigo-600 shadow-inner";
+                iconBox.innerHTML = `<i class="fa-solid fa-info"></i>`;
+            }
+
+            modal.classList.remove('hidden');
+        };
+
+        window.closeAlertDialog = function() {
+            document.getElementById('alertModal').classList.add('hidden');
+        };
+
+        // Run application on load finish
+        window.onload = function() {
+            startFirebase();
+        };
+
+    </script>
 </body>
 </html>

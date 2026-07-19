@@ -96,8 +96,10 @@
                 <div class="flex items-center space-x-3 md:block md:space-x-0 md:text-center">
                     <!-- Profile image: Double click to login secretly -->
                     <div class="relative inline-block group">
+                        <!-- 고양이 프로필 사진의 찌러짐을 막기 위해 object-cover 속성을 스타일로 강제 주입했습니다. -->
                         <img id="profileAvatar" src="https://images.unsplash.com/photo-1503777119540-ce54b422baff?q=80&w=686&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                              ondblclick="triggerSecretLogin()" 
+                             style="object-fit: cover; object-position: center;"
                              class="w-16 h-16 md:w-24 md:h-24 rounded-full mx-auto border-2 border-white/50 cursor-pointer hover:border-teal-400 transition duration-300 shadow-md"
                              alt="Profile avatar"
                              title="이곳을 더블클릭하면 주인장 모드가 열립니다.">
@@ -406,17 +408,16 @@
         // Firebase Identification Configuration Link
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'yeonsoo-tistory-blog';
         
-        // 중요: 온라인 연결을 사용하려면 아래 apiKey 란에 본인의 Firebase Web API 키를 입력해 주세요.
-        const firebaseConfig = {
-  apiKey: "AIzaSyBafdX9hUQEtgCtWBhwpLxq0nPuUf4cxQo",
-  authDomain: "ys-github-io.firebaseapp.com",
-  projectId: "ys-github-io",
-  storageBucket: "ys-github-io.firebasestorage.app",
-  messagingSenderId: "720004588548",
-  appId: "1:720004588548:web:271455ecf4593b58bfc151",
-  measurementId: "G-N5PW8NN0JJ"
-};
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
+        // 중복 선언되어 구문 에러(SyntaxError)를 일으키던 부분을 완벽하게 하나로 결합하고 정돈했습니다.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyBafdX9hUQEtgCtWBhwpLxq0nPuUf4cxQo",
+            authDomain: "ys-github-io.firebaseapp.com",
+            projectId: "ys-github-io",
+            storageBucket: "ys-github-io.firebasestorage.app",
+            messagingSenderId: "720004588548",
+            appId: "1:720004588548:web:271455ecf4593b58bfc151",
+            measurementId: "G-N5PW8NN0JJ"
+        };
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let auth, db, postsCollectionRef, commentsCollectionRef;
@@ -431,7 +432,7 @@
         async function startFirebase() {
             try {
                 // apiKey가 비어있으면 처음부터 예외를 발생시켜 명확하게 로컬 모드로 넘어가도록 유도합니다.
-                if (!defaultFirebaseConfig.apiKey || defaultFirebaseConfig.apiKey.trim() === "") {
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.trim() === "") {
                     throw new Error("Missing Firebase API Key. Running in Local Offline Mode.");
                 }
 
@@ -627,7 +628,7 @@
             document.getElementById('postsSection').classList.add('hidden');
             document.getElementById('postDetailSection').classList.remove('hidden');
 
-            if (defaultFirebaseConfig.apiKey) {
+            if (firebaseConfig.apiKey) {
                 startSyncComments(post.id);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -798,7 +799,7 @@
             };
 
             try {
-                if (!defaultFirebaseConfig.apiKey) {
+                if (!firebaseConfig.apiKey) {
                     throw new Error("Offline mode active.");
                 }
                 await addDoc(commentsCollectionRef, payload);
@@ -834,7 +835,7 @@
             localLikes[post.id] = true;
 
             try {
-                if (!defaultFirebaseConfig.apiKey) {
+                if (!firebaseConfig.apiKey) {
                     throw new Error("Offline mode.");
                 }
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', post.id);
@@ -1075,7 +1076,7 @@
             };
 
             try {
-                if (!defaultFirebaseConfig.apiKey || defaultFirebaseConfig.apiKey.trim() === "") {
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.trim() === "") {
                     throw new Error("Local saving mock configuration activation.");
                 }
                 if (editId) {
@@ -1099,7 +1100,7 @@
 
             if (confirm("경고! 정말로 작성된 일지를 보관소에서 완전히 영구 소멸시키겠습니까?")) {
                 try {
-                    if (!defaultFirebaseConfig.apiKey) {
+                    if (!firebaseConfig.apiKey) {
                         throw new Error("No Key.");
                     }
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', currentPost.id);
@@ -1127,7 +1128,7 @@
             aiIcon.className = "fa-solid fa-spinner animate-spin text-xs";
             aiText.innerText = "비서 작성 중...";
 
-            const apiKey = defaultFirebaseConfig.apiKey; 
+            const apiKey = firebaseConfig.apiKey; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
             const payload = {

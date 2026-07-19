@@ -430,7 +430,7 @@
         async function startFirebase() {
             try {
                 // apiKey가 비어있으면 처음부터 예외를 발생시켜 명확하게 로컬 모드로 넘어가도록 유도합니다.
-                if (!firebaseConfig.apiKey) {
+                if (!defaultFirebaseConfig.apiKey || defaultFirebaseConfig.apiKey.trim() === "") {
                     throw new Error("Missing Firebase API Key. Running in Local Offline Mode.");
                 }
 
@@ -626,7 +626,7 @@
             document.getElementById('postsSection').classList.add('hidden');
             document.getElementById('postDetailSection').classList.remove('hidden');
 
-            if (firebaseConfig.apiKey) {
+            if (defaultFirebaseConfig.apiKey) {
                 startSyncComments(post.id);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -797,7 +797,7 @@
             };
 
             try {
-                if (!firebaseConfig.apiKey) {
+                if (!defaultFirebaseConfig.apiKey) {
                     throw new Error("Offline mode active.");
                 }
                 await addDoc(commentsCollectionRef, payload);
@@ -833,7 +833,7 @@
             localLikes[post.id] = true;
 
             try {
-                if (!firebaseConfig.apiKey) {
+                if (!defaultFirebaseConfig.apiKey) {
                     throw new Error("Offline mode.");
                 }
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', post.id);
@@ -1074,7 +1074,7 @@
             };
 
             try {
-                if (!firebaseConfig.apiKey) {
+                if (!defaultFirebaseConfig.apiKey || defaultFirebaseConfig.apiKey.trim() === "") {
                     throw new Error("Local saving mock configuration activation.");
                 }
                 if (editId) {
@@ -1098,7 +1098,7 @@
 
             if (confirm("경고! 정말로 작성된 일지를 보관소에서 완전히 영구 소멸시키겠습니까?")) {
                 try {
-                    if (!firebaseConfig.apiKey) {
+                    if (!defaultFirebaseConfig.apiKey) {
                         throw new Error("No Key.");
                     }
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', currentPost.id);
@@ -1126,7 +1126,7 @@
             aiIcon.className = "fa-solid fa-spinner animate-spin text-xs";
             aiText.innerText = "비서 작성 중...";
 
-            const apiKey = ""; // API Key secured and loaded dynamic
+            const apiKey = defaultFirebaseConfig.apiKey; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
             const payload = {
@@ -1152,7 +1152,7 @@
                 if (text) {
                     // Quill.js integration insertion safely
                     const range = quill.getSelection(true);
-                    quill.clipboard.dangerouslyPasteHTML(range.index, `<p>${text.replace(/\n/g, '<br>')}</p>`);
+                    quill.insertText(range.index, text);
                     notifyUser("success", "문장 삽입 완료", "작성 위치에 인공지능이 서술한 글이 아름답게 스며들었습니다.");
                     document.getElementById('aiPrompt').value = "";
                 } else {

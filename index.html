@@ -407,14 +407,15 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'yeonsoo-tistory-blog';
         
         // 중요: 온라인 연결을 사용하려면 아래 apiKey 란에 본인의 Firebase Web API 키를 입력해 주세요.
-        const defaultFirebaseConfig = {
-            apiKey: "AIzaSyBafdX9hUQEtgCtWBhwpLxq0nPuUf4cxQo", 
-            authDomain: "aura-block-blog.firebaseapp.com",
-            projectId: "aura-block-blog",
-            storageBucket: "aura-block-blog.appspot.com",
-            messagingSenderId: "12345",
-            appId: "1:12345:web:12345"
-        };
+        const firebaseConfig = {
+  apiKey: "AIzaSyBafdX9hUQEtgCtWBhwpLxq0nPuUf4cxQo",
+  authDomain: "ys-github-io.firebaseapp.com",
+  projectId: "ys-github-io",
+  storageBucket: "ys-github-io.firebasestorage.app",
+  messagingSenderId: "720004588548",
+  appId: "1:720004588548:web:271455ecf4593b58bfc151",
+  measurementId: "G-N5PW8NN0JJ"
+};
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 

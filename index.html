@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 작업 다이어리</title>
+    <style>
+        /* 웹사이트를 예쁘게 꾸며주는 마법 스타일(CSS) 공간입니다 */
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #fafafa;
+            color: #333333;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        header {
+            border-bottom: 2px solid #eeeeee;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #111111;
+            margin: 0;
+        }
+        p.subtitle {
+            font-size: 14px;
+            color: #888888;
+            margin: 5px 0 0 0;
+        }
+        .diary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        /* 일기를 쓸 때마다 이 상자 모양으로 예쁘게 보일 거예요 */
+        .diary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .date {
+            font-size: 12px;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        .diary-title {
+            font-size: 18px;
+            margin: 5px 0 10px 0;
+            color: #222222;
+        }
+        .content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #444444;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 블로그의 대문(제목) 부분입니다 -->
+        <header>
+            <h1>나의 작업 다이어리</h1>
+            <p class="subtitle">나의 프로젝트와 업무 기록을 차곡차곡 쌓아가는 공간</p>
+        </header>
+
+        <!-- 일기장 본문입니다. 여기에 앞으로 일기를 추가하면 됩니다 -->
+        <main class="diary-list">
+            
+            <!-- 첫 번째 일기 예시 (새 일기를 쓸 때는 이 아래 공간에 똑같이 복사해서 쓰면 돼요!) -->
+            <article class="diary-item">
+                <div class="date">2026년 7월 19일</div>
+                <h2 class="diary-title">첫 번째 기록: 블로그 시작!</h2>
+                <p class="content">
+                    오늘 드디어 깃허브에 나만의 빈 다이어리 블로그를 만들었습니다. 
+                    앞으로 이곳에 내가 했던 일들과 프로젝트 과정을 하나씩 기록해 나갈 예정입니다. 
+                    파이팅!
+                </p>
+            </article>
+
+            <!-- 💡 새로운 일기를 쓰고 싶다면? 바로 여기에 복사해서 넣으세요! -->
+
+        </main>
+    </div>
+
+</body>
+</html>

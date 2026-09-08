@@ -10,13 +10,12 @@ const featured = posts.find(post => post.data.featured) || posts[0];
 <Layout>
   <section class="hero shell">
     <div class="hero-top"><span class="eyebrow"><span class="status-dot"></span> A DESIGNER LEARNING TO CODE</span><span class="hero-edition">FIELD NOTES / 01</span></div>
-    <h1>시선을 코드로.<br />경험을 <span class="blue">가능성으로.</span></h1>
+    <h1><span class="hero-line">시선을 코드로.</span><span class="hero-line">경험을 <span class="blue">가능성으로.</span></span></h1>
     <div class="hero-bottom"><p>{settings.intro}<br />3D 디자인에서 개발, 그리고 AI까지.</p><a class="text-link" href={path('about/')}>조금 더 알아보기 <span>↗</span></a></div>
   </section>
   {featured && <section class="featured shell" aria-labelledby="featured-title">
     <a class="feature-art" href={postPath(featured)} aria-label={featured.data.title}>
       {featured.data.cover ? <MediaImage src={featured.data.cover} alt={featured.data.coverAlt} eager sizes="(max-width: 700px) calc(100vw - 36px), 650px"/> : <img src={path(`covers/${featured.data.id}.svg`)} width="1200" height="800" alt={`${featured.data.title} 표지`}/>}
-      <span class="art-caption">FORM STUDY — 001 <span>BRAND ART</span></span>
     </a>
     <div class="feature-copy"><div class="eyebrow"><span class="blue">FEATURED NOTE</span>{featured.data.sample && <span class="sample-tag">샘플 글</span>}</div><span class="feature-category">{featured.data.category}</span><h2 id="featured-title"><a href={postPath(featured)}>{featured.data.title}</a></h2><p>{postSummary(featured)}</p><div class="feature-bottom"><span>{formatDate(featured.data.date)} · {postMinutes(featured)}분 읽기</span><a class="round-arrow" href={postPath(featured)} aria-label={`${featured.data.title} 읽기`}>↗</a></div></div>
   </section>}

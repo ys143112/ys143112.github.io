@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import matter from 'gray-matter';
 import YAML from 'yaml';
 import { validatePost } from '../src/lib/content-policy.mjs';
+import { analyzeMarkdown } from '../src/lib/markdown.mjs';
 
 const directory = new URL('../src/content/posts/', import.meta.url);
 const files = (await readdir(directory)).filter(file => file.endsWith('.md'));
@@ -14,7 +15,7 @@ for (const file of files) {
     errors.push(...validatePost(data, content, file));
     if(ids.has(data.id)) errors.push(`${file}: 중복된 글 ID입니다.`);
     ids.add(data.id);
-    const images = [...content.matchAll(/!\[[^\]]*\]\((\/uploads\/[^\s)]+)(?:\s+[^)]*)?\)/g)].map(match=>match[1]);
+    const images = analyzeMarkdown(content).images.filter(src => src.startsWith('/uploads/'));
     if(data.cover) images.push(data.cover);
     for(const src of images) {
       const filePath = resolve(publicRoot, '.' + decodeURIComponent(src));

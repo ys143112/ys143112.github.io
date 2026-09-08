@@ -9,4 +9,7 @@ test('blank publication and missing cover descriptions are actionable errors',()
 test('default descriptions use prose, omit code and image syntax',()=>{ assert.equal(summary('## 제목\n\n본문입니다.\n```js\nsecret_code();\n```\n![사진](/a.png)'),'제목 본문입니다.'); });
 test('root and project Pages paths work without double prefixes',()=>{ assert.equal(localPath('/uploads/a.png','/'),'/uploads/a.png'); assert.equal(localPath('/uploads/a.png','/blog/'),'/blog/uploads/a.png'); assert.equal(localPath('/blog/uploads/a.png','/blog/'),'/blog/uploads/a.png'); });
 test('external links are preserved',()=>assert.equal(localPath('https://example.org/a','/blog/'),'https://example.org/a'));
-test('HTML code examples are allowed inside fenced code; executable prose is blocked',()=>{ assert.deepEqual(validatePost(data,'설명\n```html\n<script>alert(1)</script>\n```','example.md'),[]); assert.match(validatePost(data,'<script>alert(1)</script>','example.md').join(' '),/실행 가능한 HTML/); });
+test('code and image articles are valid content; comments are not',()=>{
+  for(const body of ['```js\nconsole.log(1);\n```','![작품](/uploads/art.webp)','설정은 onload=ready 입니다.']) assert.deepEqual(validatePost(data,body,'post.md'),[]);
+  assert.match(validatePost(data,'<!-- unfinished -->','post.md').join(' '),/본문/);
+});

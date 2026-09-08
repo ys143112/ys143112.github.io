@@ -1,9 +1,8 @@
+import { analyzeMarkdown } from './markdown.mjs';
 export const categories = ['3D 디자인', '개발 기록', 'AI 실험', '프로젝트'];
 
 export function plainText(markdown = '') {
-  return markdown.replace(/```[\s\S]*?```/g, ' ').replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '')
-    .replace(/[#*_>`~|]/g, '').replace(/\s+/g, ' ').trim();
+  return analyzeMarkdown(markdown).text;
 }
 export function summary(body = '', description = '') {
   const text = plainText(description || body);
@@ -19,7 +18,7 @@ export function stableSlug(id) {
 export function isPublished(post) { return post.published === true; }
 export function normalizeBase(base = '/') { return '/' + base.split('/').filter(Boolean).join('/') + (base.split('/').filter(Boolean).length ? '/' : ''); }
 export function localPath(path, base = '/') {
-  if (/^https?:\/\//.test(path)) return path;
+  if (/^(?:https?:)?\/\//i.test(path)) return path;
   const normalized = normalizeBase(base);
   if (normalized !== '/' && path.startsWith(normalized)) return path;
   return normalized + path.replace(/^\/+/, '');
@@ -31,10 +30,8 @@ export function validatePost(data, body, filename) {
   if (!categories.includes(data.category)) errors.push('카테고리가 올바르지 않습니다.');
   if (!data.date || Number.isNaN(new Date(data.date).getTime())) errors.push('작성일이 필요합니다.');
   if (typeof data.published !== 'boolean') errors.push('공개 상태는 true 또는 false여야 합니다.');
-  if (data.published && !plainText(body)) errors.push('공개할 글의 본문이 비어 있습니다.');
+  if (data.published && !analyzeMarkdown(body).hasContent) errors.push('공개할 글의 본문이 비어 있습니다.');
   if (data.cover && !data.cover.startsWith('/uploads/')) errors.push('대표 이미지는 미디어 보관함에 업로드해 주세요.');
   if (data.cover && !data.coverAlt?.trim()) errors.push('대표 이미지 설명을 입력해 주세요.');
-  const prose = body.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`]*`/g, '');
-  if (/<\s*(script|iframe|object|embed)\b|\bon\w+\s*=|javascript\s*:/i.test(prose)) errors.push('실행 가능한 HTML은 지원하지 않습니다. 코드 예제는 코드 블록으로 작성해 주세요.');
   return errors.map((error) => `${filename}: ${error}`);
 }

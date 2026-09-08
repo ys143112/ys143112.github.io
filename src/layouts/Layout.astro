@@ -2,11 +2,19 @@
 import '../styles/global.css';
 import settings from '../data/site.json';
 import { path } from '../lib/posts';
-interface Props { title?: string; description?: string; image?: string; article?: boolean; noindex?: boolean; }
-const { title = settings.title, description = settings.description, image, article = false, noindex = false } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+import Wordmark from '../components/Wordmark.astro';
+interface Props { title?: string; description?: string; image?: string; article?: boolean; noindex?: boolean; published?: Date; updated?: Date; }
+const { title = settings.title, description = settings.description, image, article = false, noindex = false, published, updated } = Astro.props;
+const canonical = new URL(Astro.url.pathname.replace(/\/404\/$/, '/404.html'), Astro.site);
 const pageTitle = title === settings.title ? title : `${title} — ${settings.title}`;
 const active = Astro.url.pathname;
+const structuredData = article ? {
+  '@context': 'https://schema.org', '@type': 'BlogPosting', headline: title, description,
+  mainEntityOfPage: canonical.href, url: canonical.href, inLanguage: 'ko-KR',
+  author: { '@type': 'Person', name: settings.author, url: new URL(path('about/'), Astro.site).href },
+  datePublished: published?.toISOString(), dateModified: (updated || published)?.toISOString(),
+  ...(image ? {image: new URL(path(image), Astro.site).href} : {}),
+} : undefined;
 ---
 <!doctype html>
 <html lang="ko">
@@ -14,6 +22,7 @@ const active = Astro.url.pathname;
     <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title><meta name="description" content={description} />
     <meta name="theme-color" content="#f6f7f9" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="canonical" href={canonical} /><link rel="icon" type="image/svg+xml" href={path('favicon.svg')} />
     <link rel="alternate" type="application/rss+xml" title={settings.title} href={path('rss.xml')} />
@@ -21,22 +30,26 @@ const active = Astro.url.pathname;
     <meta property="og:type" content={article ? 'article' : 'website'} /><meta property="og:url" content={canonical} />
     <meta property="og:locale" content="ko_KR" /><meta property="og:site_name" content={settings.title} />
     <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={pageTitle} /><meta name="twitter:description" content={description} />
     {image && <meta property="og:image" content={new URL(path(image), Astro.site)} />}
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    {updated && <meta property="article:modified_time" content={updated.toISOString()} />}
+    {structuredData && <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />}
   </head>
   <body>
     <a class="skip-link" href="#main">본문으로 건너뛰기</a>
     <header class="site-header shell">
-      <a class="wordmark" href={path('')} aria-label="FORM TO CODE 홈">FORM<span aria-hidden="true">↗</span>CODE<span class="wordmark-dot">.</span></a>
+      <Wordmark />
       <nav aria-label="주 메뉴">
         <a href={path('blog/')} aria-current={active.includes('/blog') || active.includes('/posts') || active.includes('/category') ? 'page' : undefined}>기록</a>
         <a href={path('projects/')} aria-current={active.includes('/projects') ? 'page' : undefined}>프로젝트</a>
         <a href={path('about/')} aria-current={active.includes('/about') ? 'page' : undefined}>소개</a>
-        <a class="write-link" href={path('write/')}>글쓰기 <span aria-hidden="true">↗</span></a>
+        <a class="write-link" href={path('write/')} aria-current={active.includes('/write') ? 'page' : undefined}>글쓰기 <span aria-hidden="true">↗</span></a>
       </nav>
     </header>
     <main id="main"><slot /></main>
     <footer class="site-footer shell">
-      <div><a class="wordmark footer-mark" href={path('')}>FORM<span>↗</span>CODE.</a><p>관찰하고, 만들고, 기록합니다.</p></div>
+      <div><Wordmark footer /><p>관찰하고, 만들고, 기록합니다.</p></div>
       <div class="footer-links"><a href={settings.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href={path('rss.xml')}>RSS ↗</a><span>© {new Date().getFullYear()} {settings.author}</span></div>
     </footer>
   </body>

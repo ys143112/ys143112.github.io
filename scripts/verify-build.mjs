@@ -2,6 +2,7 @@ import { readFile, readdir, access } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import matter from 'gray-matter';
 import { normalizeBase } from '../src/lib/content-policy.mjs';
+import { inspectHtml } from '../src/lib/html-inspection.mjs';
 
 const root = resolve('dist');
 const settings=JSON.parse(await readFile('src/data/site.json','utf8'));
@@ -10,16 +11,28 @@ const errors = [];
 async function walk(dir) { const result = []; for(const entry of await readdir(dir,{withFileTypes:true})) { const path = join(dir,entry.name); if(entry.isDirectory()) result.push(...await walk(path)); else result.push(path); } return result; }
 const built = await walk(root);
 const html = built.filter(file=>file.endsWith('.html'));
+const documents = new Map(await Promise.all(html.map(async file => [file, inspectHtml(await readFile(file, 'utf8'))])));
+const origin = new URL(process.env.SITE_URL || settings.url).origin;
 for(const file of html) {
-  const text = await readFile(file,'utf8');
-  if(!text.includes('<html lang="ko"')) errors.push(`Missing Korean document language: ${file}`);
-  for(const match of text.matchAll(/(?:href|src)="([^"#]+)"/g)) {
-    const value = match[1].split('#')[0].split('?')[0];
-    if(!value.startsWith('/')) continue;
-    if(!value.startsWith(base)) { errors.push(`Link misses base ${base}: ${value}`); continue; }
-    const path = decodeURIComponent(value.slice(base.length));
-    const target = join(root,path, path.endsWith('/') || !path ? 'index.html' : '');
-    try { await access(target); } catch { errors.push(`Broken internal link in ${file}: ${value}`); }
+  const document = documents.get(file);
+  if(document.language !== 'ko') errors.push(`Missing Korean document language: ${file}`);
+  const route = file.slice(root.length + 1).replaceAll('\\', '/').replace(/index\.html$/, '');
+  const currentUrl = new URL(base + route, origin);
+  for(const link of document.links) {
+    let url, path;
+    try { url = new URL(link.url, currentUrl); path = decodeURIComponent(url.pathname); }
+    catch { errors.push(`Invalid URL in ${file}: ${link.url}`); continue; }
+    if(url.origin !== origin) continue;
+    if(!path.startsWith(base)) { errors.push(`Link misses base ${base}: ${link.url}`); continue; }
+    const relative = path.slice(base.length);
+    const target = resolve(root, relative, relative.endsWith('/') || !relative ? 'index.html' : '');
+    if(!target.startsWith(root + '/') && !target.startsWith(root + '\\')) { errors.push(`Link escapes output: ${link.url}`); continue; }
+    try { await access(target); } catch { errors.push(`Broken internal link in ${file}: ${link.url}`); continue; }
+    if(link.anchor && url.hash && documents.has(target)) {
+      let fragment;
+      try { fragment = decodeURIComponent(url.hash.slice(1)); } catch { fragment = url.hash.slice(1); }
+      if(fragment && !documents.get(target).ids.has(fragment)) errors.push(`Missing anchor in ${file}: ${link.url}`);
+    }
   }
 }
 const indexableText = (await Promise.all(built.filter(file=>/\.(html|xml)$/.test(file)).map(file=>readFile(file,'utf8')))).join('\n');

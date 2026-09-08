@@ -7,20 +7,31 @@ import { getPosts, postSummary, postMinutes, formatDate, path, type Post } from 
 export async function getStaticPaths() { return (await getPosts()).map(post => ({ params: { id: post.data.id }, props: { post } })); }
 const { post } = Astro.props as { post: Post };
 const { Content, headings } = await render(post);
+const toc = headings.filter(h => h.depth === 2);
 const related = (await getPosts()).filter(p => p.data.id !== post.data.id).sort((a,b) => Number(b.data.category === post.data.category) - Number(a.data.category === post.data.category)).slice(0,2);
 ---
-<Layout title={post.data.title} description={postSummary(post)} image={post.data.cover || undefined} article>
+<Layout title={post.data.title} description={postSummary(post)} image={post.data.cover || undefined} article published={post.data.date} updated={post.data.updated}>
   <div class="shell"><header class="article-header"><div class="eyebrow blue">{post.data.category}{post.data.sample && <span class="sample-tag">샘플 글</span>}</div><h1>{post.data.title}</h1><p class="article-description">{postSummary(post)}</p><div class="article-meta"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span>·</span><span>{postMinutes(post)}분 읽기</span>{post.data.updated && <span>수정 {formatDate(post.data.updated)}</span>}</div></header>
   {post.data.cover && <figure class="article-cover"><MediaImage src={post.data.cover} alt={post.data.coverAlt} eager/><figcaption>{post.data.coverAlt}</figcaption></figure>}
-  <div class="article-layout"><article class="prose" data-prose>{post.data.sample && <div class="sample-notice">이 글은 작성 방법과 화면 구성을 보여주는 샘플입니다. 자신의 경험과 작업으로 내용을 바꾸어 사용하세요.</div>}<Content/><div class="article-tags">{post.data.tags.map(tag => <span>#{tag}</span>)}</div><div class="article-bottom"><a href={path('blog/')}>← 모든 기록으로</a></div></article><aside class="toc" aria-label="이 글의 목차"><strong>이 글의 목차</strong>{headings.filter(h=>h.depth===2).map(h=><a href={`#${h.slug}`}>{h.text}</a>)}</aside></div></div>
+  <div class:list={['article-layout', {'without-toc': toc.length === 0}]}><article class="prose" data-prose>
+    {toc.length > 0 && <details class="mobile-toc"><summary>이 글의 목차</summary><nav aria-label="이 글의 목차">{toc.map(h => <a href={`#${h.slug}`}>{h.text}</a>)}</nav></details>}
+    {post.data.sample && <div class="sample-notice">이 글은 작성 방법과 화면 구성을 보여주는 샘플입니다. 자신의 경험과 작업으로 내용을 바꾸어 사용하세요.</div>}<Content/><div class="article-tags">{post.data.tags.map(tag => <span>#{tag}</span>)}</div><div class="article-bottom"><a href={path('blog/')}>← 모든 기록으로</a></div></article>
+    {toc.length > 0 && <aside class="toc" aria-label="이 글의 목차"><strong>이 글의 목차</strong>{toc.map(h=><a href={`#${h.slug}`}>{h.text}</a>)}</aside>}
+  </div><p id="copy-status" class="sr-only" role="status" aria-live="polite"></p></div>
   {related.length > 0 && <section class="recent shell"><div class="section-heading"><div><span class="eyebrow blue">KEEP EXPLORING</span><h2>함께 읽는 기록</h2></div></div>{related.map((p,i)=><PostRow post={p} index={i+1}/>)}</section>}
 </Layout>
 <script>
-  document.querySelectorAll<HTMLPreElement>('[data-prose] pre').forEach(pre => {
-    const button = document.createElement('button'); button.type = 'button'; button.className = 'copy-button'; button.textContent = '코드 복사'; button.setAttribute('aria-label','코드 복사');
+  document.querySelectorAll<HTMLPreElement>('[data-prose] pre').forEach((pre, index) => {
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const status = document.querySelector('#copy-status');
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'copy-button'; button.textContent = '코드 복사'; button.setAttribute('aria-label',`${index + 1}번째 코드 복사`);
     button.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(pre.querySelector('code')?.textContent || ''); button.textContent='복사 완료'; }
-      catch { button.textContent='코드를 선택해 복사하세요'; }
+      button.disabled = true;
+      if (status) status.textContent = '';
+      try { await navigator.clipboard.writeText(code.textContent || ''); button.textContent='복사 완료'; if(status) status.textContent=`${index + 1}번째 코드를 복사했습니다.`; }
+      catch { button.textContent='복사 실패'; if(status) status.textContent='자동 복사가 허용되지 않았습니다. 코드를 선택해 복사해 주세요.'; }
+      finally { button.disabled = false; }
       setTimeout(()=>button.textContent='코드 복사',2000);
     }); pre.append(button);
   });

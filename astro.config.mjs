@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { readFileSync } from 'node:fs';
-import rehypeMedia from './src/lib/rehype-media.mjs';
+import { markdownPlugins } from './src/lib/markdown-plugins.mjs';
 import { unified } from '@astrojs/markdown-remark';
 
 const settings = JSON.parse(readFileSync(new URL('./src/data/site.json', import.meta.url), 'utf8'));
@@ -12,6 +12,6 @@ export default defineConfig({
   base: basePath || '/',
   output: 'static',
   trailingSlash: 'always',
-  integrations: [sitemap({ filter: (page) => !page.endsWith('/write/') && !page.endsWith('/404/') })],
-  markdown: { shikiConfig: { theme: 'github-dark', wrap: true }, processor: unified({rehypePlugins: [[rehypeMedia,{base:basePath || '/'}]]}) },
+  integrations: [sitemap({ filter: (page) => !/\/(?:write\/|404(?:\/|\.html))$/.test(page) })],
+  markdown: { syntaxHighlight: false, processor: unified({rehypePlugins: markdownPlugins(basePath || '/')}) },
 });

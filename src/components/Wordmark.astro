@@ -1,0 +1,8 @@
+---
+import settings from '../data/site.json';
+import { path } from '../lib/posts';
+interface Props { footer?: boolean; }
+---
+<a class:list={['wordmark', { 'footer-mark': Astro.props.footer }]} href={path('')} aria-label={`${settings.title} 홈`}>
+  {settings.title === 'FORM → CODE' ? <>FORM<span aria-hidden="true">↗</span>CODE<span class="wordmark-dot">.</span></> : settings.title}
+</a>

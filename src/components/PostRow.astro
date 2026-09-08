@@ -1,0 +1,12 @@
+---
+import { postPath, postSummary, postMinutes, formatDate, type Post } from '../lib/posts';
+interface Props { post: Post; index?: number; }
+const { post, index = 1 } = Astro.props;
+---
+<article class="post-row">
+  <span class="row-index" aria-hidden="true">{String(index).padStart(2, '0')}</span>
+  <div class="row-main"><div class="eyebrow"><span>{post.data.category}</span>{post.data.sample && <span class="sample-tag">샘플</span>}</div>
+  <h3><a href={postPath(post)}>{post.data.title}<span class="stretch-link"></span></a></h3><p>{postSummary(post)}</p></div>
+  <div class="row-meta"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span>{postMinutes(post)}분 읽기</span></div>
+  <span class="row-arrow" aria-hidden="true">↗</span>
+</article>

@@ -1,0 +1,11 @@
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { summary, readingMinutes, localPath } from './content-policy.mjs';
+export { categories, summary, readingMinutes } from './content-policy.mjs';
+export type Post = CollectionEntry<'posts'>;
+export const path = (value: string) => localPath(value, import.meta.env.BASE_URL);
+export const postPath = (post: Post) => path(`posts/${post.data.id}/`);
+export const postSummary = (post: Post) => summary(post.body, post.data.description);
+export const postMinutes = (post: Post) => readingMinutes(post.body);
+export const formatDate = (date: Date) => new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' }).format(date).replace(/\.$/, '');
+export const getPosts = async () => (await getCollection('posts')).filter(p => p.data.published).sort((a,b) => b.data.date.getTime() - a.data.date.getTime());
+export const categorySlug: Record<string, string> = { '3D 디자인': 'design', '개발 기록': 'development', 'AI 실험': 'ai', '프로젝트': 'projects' };

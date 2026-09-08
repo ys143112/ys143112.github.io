@@ -1,0 +1,9 @@
+---
+import media from '../data/media.generated.json';
+import { path } from '../lib/posts';
+interface Props { src: string; alt: string; eager?: boolean; sizes?: string; }
+const {src,alt,eager=false,sizes='(max-width: 700px) calc(100vw - 36px), 1000px'} = Astro.props;
+type Entry={src:string;width:number;height:number;variants?:{src:string;width:number}[]};
+const image = (media as Record<string,Entry>)[src];
+---
+<img src={path(image?.src || src)} alt={alt} width={image?.width} height={image?.height} srcset={image?.variants?.map(v=>`${path(v.src)} ${v.width}w`).join(', ')} sizes={image?.variants ? sizes : undefined} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async"/>

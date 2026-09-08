@@ -1,0 +1,5 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import settings from '../../data/site.json';
+---
+<Layout title="소개"><section class="page-heading shell"><span class="eyebrow blue">BEHIND THE NOTES</span><h1>형태를 보는 눈,<br />문제를 푸는 손.</h1></section><section class="about-grid shell"><div class="prose"><h2>안녕하세요, {settings.author}입니다.</h2><p>{settings.bio}</p><h2>서로 다른 경험을 연결합니다.</h2><p>형태와 공간을 다루던 경험을 바탕으로 코드를 배우고, AI의 가능성을 살펴봅니다. 이곳은 새로운 기술을 직접 사용하며 이해한 내용을 정리하는 공간입니다.</p><h2>이곳에 남기는 것</h2><p>보기 좋은 결과만큼 만드는 과정에도 관심이 있습니다. 디자인의 판단, 개발 중 만난 문제, AI 실험의 조건과 결과를 기록합니다.</p><a href={settings.github} target="_blank" rel="noopener noreferrer" class="text-link">GitHub에서 만나기 ↗</a></div><aside class="about-card"><span class="eyebrow">FORM → CODE</span><h2>하나의 시선,<br />넓어지는 도구.</h2><p>관찰에서 출발해<br />직접 만들며 배워갑니다.</p><div class="discipline-list"><div><strong>3D 디자인</strong><span>형태 · 재질 · 빛</span></div><div><strong>개발</strong><span>문제 · 구조 · 코드</span></div><div><strong>AI</strong><span>질문 · 실험 · 발견</span></div></div></aside></section></Layout>

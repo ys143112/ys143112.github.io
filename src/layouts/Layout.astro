@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+import settings from '../data/site.json';
+import { path } from '../lib/posts';
+interface Props { title?: string; description?: string; image?: string; article?: boolean; noindex?: boolean; }
+const { title = settings.title, description = settings.description, image, article = false, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const pageTitle = title === settings.title ? title : `${title} — ${settings.title}`;
+const active = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title><meta name="description" content={description} />
+    <meta name="theme-color" content="#f6f7f9" />
+    {noindex && <meta name="robots" content="noindex,follow" />}
+    <link rel="canonical" href={canonical} /><link rel="icon" type="image/svg+xml" href={path('favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title={settings.title} href={path('rss.xml')} />
+    <meta property="og:title" content={pageTitle} /><meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? 'article' : 'website'} /><meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ko_KR" /><meta property="og:site_name" content={settings.title} />
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    {image && <meta property="og:image" content={new URL(path(image), Astro.site)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header shell">
+      <a class="wordmark" href={path('')} aria-label="FORM TO CODE 홈">FORM<span aria-hidden="true">↗</span>CODE<span class="wordmark-dot">.</span></a>
+      <nav aria-label="주 메뉴">
+        <a href={path('blog/')} aria-current={active.includes('/blog') || active.includes('/posts') || active.includes('/category') ? 'page' : undefined}>기록</a>
+        <a href={path('projects/')} aria-current={active.includes('/projects') ? 'page' : undefined}>프로젝트</a>
+        <a href={path('about/')} aria-current={active.includes('/about') ? 'page' : undefined}>소개</a>
+        <a class="write-link" href={path('write/')}>글쓰기 <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="site-footer shell">
+      <div><a class="wordmark footer-mark" href={path('')}>FORM<span>↗</span>CODE.</a><p>관찰하고, 만들고, 기록합니다.</p></div>
+      <div class="footer-links"><a href={settings.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href={path('rss.xml')}>RSS ↗</a><span>© {new Date().getFullYear()} {settings.author}</span></div>
+    </footer>
+  </body>
+</html>

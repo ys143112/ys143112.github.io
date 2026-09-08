@@ -1,0 +1,9 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Archive from '../../components/Archive.astro';
+import { getPosts, categories, categorySlug } from '../../lib/posts';
+export function getStaticPaths() { return categories.map(category => ({ params: { category: categorySlug[category] }, props: { category } })); }
+const { category } = Astro.props;
+const posts = (await getPosts()).filter(post => post.data.category === category);
+---
+<Layout title={category}><div class="page-heading shell"><span class="eyebrow blue">FIELD NOTES / CATEGORY</span><h1>{category}</h1><p>하나의 주제를 조금씩 깊이 이해하는 기록.</p></div><Archive posts={posts} selected={category}/></Layout>

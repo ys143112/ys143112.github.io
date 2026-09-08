@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PostRow from '../components/PostRow.astro';
+import MediaImage from '../components/MediaImage.astro';
+import settings from '../data/site.json';
+import { getPosts, postPath, path, formatDate, postMinutes, postSummary } from '../lib/posts';
+const posts = await getPosts();
+const featured = posts.find(post => post.data.featured) || posts[0];
+---
+<Layout>
+  <section class="hero shell">
+    <div class="hero-top"><span class="eyebrow"><span class="status-dot"></span> A DESIGNER LEARNING TO CODE</span><span class="hero-edition">FIELD NOTES / 01</span></div>
+    <h1>시선을 코드로.<br />경험을 <span class="blue">가능성으로.</span></h1>
+    <div class="hero-bottom"><p>{settings.intro}<br />3D 디자인에서 개발, 그리고 AI까지.</p><a class="text-link" href={path('about/')}>조금 더 알아보기 <span>↗</span></a></div>
+  </section>
+  {featured && <section class="featured shell" aria-labelledby="featured-title">
+    <a class="feature-art" href={postPath(featured)} aria-label={featured.data.title}>
+      {featured.data.cover ? <MediaImage src={featured.data.cover} alt={featured.data.coverAlt} eager sizes="(max-width: 700px) calc(100vw - 36px), 650px"/> : <img src={path(`covers/${featured.data.id}.svg`)} width="1200" height="800" alt={`${featured.data.title} 표지`}/>}
+      <span class="art-caption">FORM STUDY — 001 <span>BRAND ART</span></span>
+    </a>
+    <div class="feature-copy"><div class="eyebrow"><span class="blue">FEATURED NOTE</span>{featured.data.sample && <span class="sample-tag">샘플 글</span>}</div><span class="feature-category">{featured.data.category}</span><h2 id="featured-title"><a href={postPath(featured)}>{featured.data.title}</a></h2><p>{postSummary(featured)}</p><div class="feature-bottom"><span>{formatDate(featured.data.date)} · {postMinutes(featured)}분 읽기</span><a class="round-arrow" href={postPath(featured)} aria-label={`${featured.data.title} 읽기`}>↗</a></div></div>
+  </section>}
+  <section class="recent shell" aria-labelledby="recent-title"><div class="section-heading"><div><span class="eyebrow blue">THE JOURNAL</span><h2 id="recent-title">최근의 기록<span class="count">{String(posts.length).padStart(2,'0')}</span></h2></div><a class="text-link" href={path('blog/')}>모든 기록 <span>↗</span></a></div>
+    {posts.length ? posts.slice(0,4).map((post, index) => <PostRow post={post} index={index+1} />) : <div class="empty-state"><h3>첫 번째 기록을 기다리고 있습니다.</h3><p>새로운 배움과 작업의 과정을 이곳에 남깁니다.</p></div>}
+  </section>
+  <section class="about-strip shell"><span class="eyebrow">ALWAYS IN PROGRESS</span><p>좋은 질문에서 시작해,<br />직접 만들며 답을 찾습니다.</p><a href={path('projects/')} class="text-link">만들고 있는 것들 <span>↗</span></a></section>
+</Layout>

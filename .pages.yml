@@ -19,7 +19,12 @@ content:
     operations:
       rename: false
     view:
+      fields: [title, date, category, published]
       primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
     fields:
       - name: id
         label: 글 고유 번호

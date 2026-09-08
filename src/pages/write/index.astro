@@ -3,14 +3,14 @@ import Layout from '../../layouts/Layout.astro';
 import settings from '../../data/site.json';
 ---
 <Layout title="글쓰기" noindex>
-  <section class="page-heading shell"><span class="eyebrow blue">작성자를 위한 공간</span><h1>오늘의 배움을<br />한 편의 기록으로.</h1><p>편집기 연결을 마친 뒤 글과 이미지를 작성하세요. 공개 상태로 저장하면 검사와 배포를 거쳐 사이트에 반영됩니다.</p></section>
+  <section class="page-heading shell"><span class="eyebrow blue">작성자를 위한 공간</span><h1>오늘의 배움을<br />한 편의 기록으로.</h1><p>편집기에서 글과 이미지를 작성하세요. 공개 상태로 저장하면 검사와 배포를 거쳐 사이트에 반영됩니다.</p></section>
   <section class="write-panel shell">
     <div class="setup-card"><h2>글쓰기 편집기</h2><p>GitHub 계정으로 로그인한 뒤 <strong>{settings.repository}</strong> 저장소의 <strong>게시글</strong> 메뉴를 엽니다.</p>
-      <a class="primary-button" href="https://app.pagescms.org/" target="_blank" rel="noopener noreferrer">편집기 열기 <span aria-hidden="true">↗</span></a>
+      <a class="primary-button" href={`https://app.pagescms.org/${settings.repository}/main/collection/posts`} target="_blank" rel="noopener noreferrer">편집기 열기 <span aria-hidden="true">↗</span></a>
       <ol class="writing-steps"><li><strong>새 글을 작성합니다.</strong><br />제목과 본문을 적고, 이미지와 코드 예제를 넣습니다.</li><li><strong>공개 여부를 선택합니다.</strong><br />사이트에 올릴 준비가 됐다면 ‘블로그에 공개’를 켭니다.</li><li><strong>저장하고 게시 결과를 확인합니다.</strong><br />저장 직후에는 이전 글이 보일 수 있습니다. 게시가 완료된 후 블로그를 새로고침하세요.</li></ol>
       <a class="secondary-button" href={`https://github.com/${settings.repository}/actions`} target="_blank" rel="noopener noreferrer">게시 진행 상태 확인 ↗</a>
     </div>
-    <div class="setup-card"><h2>처음 한 번만 연결하세요</h2><p>Pages CMS에 GitHub로 로그인하고 이 블로그 저장소의 접근을 허용합니다. 저장소가 보이지 않으면 GitHub App의 저장소 접근 설정을 확인하세요.</p>
+    <div class="setup-card"><h2>편집기 이용 안내</h2><p>연결한 GitHub 계정으로 로그인하세요. 저장소가 보이지 않으면 GitHub App의 저장소 접근 설정을 확인하세요.</p>
       <div class="write-fields"><div><strong>요약</strong><span>비워두면 본문에서 자동 추출</span></div><div><strong>샘플 글</strong><span>내 글로 바꾼 뒤 샘플 표시 끄기</span></div><div><strong>글 주소</strong><span>제목을 수정해도 유지</span></div></div>
       <details class="write-help"><summary>저장했는데 글이 보이지 않나요?</summary><p>공개 상태와 게시 진행 결과를 확인하세요. 오류가 있다면 빠진 항목을 수정하고 다시 저장합니다. 배포 실패 중에는 마지막으로 게시에 성공한 사이트가 유지됩니다.</p></details>
       <p class="draft-note"><strong>초안도 GitHub에서는 보입니다.</strong><br />공개 저장소에는 원고, 업로드한 이미지, 수정 이력이 공개됩니다. 공개를 꺼도 비밀 보관되는 것은 아닙니다.</p>

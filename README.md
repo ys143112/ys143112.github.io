@@ -39,7 +39,9 @@ pwsh -File scripts/connect-github.ps1
 
 프로젝트 저장소(`아이디.github.io/저장소명/`)도 지원합니다. 배포 작업이 실제 Pages 주소와 하위 경로를 자동 전달하며, 본문 이미지와 링크에도 해당 경로를 적용합니다.
 
-## 글쓰기 편집기 연결
+## 글 작성과 편집기 연결
+
+이 블로그는 Pages CMS에 연결되어 있습니다. [게시글 편집기](https://app.pagescms.org/ys143112/ys143112.github.io/main/collection/posts)에서 **Add an entry**를 누르면 새 글을 작성할 수 있습니다. 기존 샘플은 제목을 눌러 수정합니다.
 
 1. https://app.pagescms.org 에서 **Sign in with GitHub**를 선택합니다.
 2. Pages CMS GitHub App을 설치할 때 이 블로그 저장소를 선택합니다.
@@ -47,7 +49,9 @@ pwsh -File scripts/connect-github.ps1
 4. 새 글을 작성하고 **블로그에 공개**를 켠 다음 저장합니다.
 5. GitHub Actions의 **Publish blog** 성공 여부를 확인합니다.
 
-원고와 이미지는 GitHub에 저장됩니다. 매번 Git 명령이나 배포 명령을 입력할 필요는 없습니다. CMS 저장부터 실서비스 반영까지는 최초 연결 후 실제 저장 동작으로 한 번 확인하세요.
+원고와 이미지는 GitHub에 저장됩니다. 매번 Git 명령이나 배포 명령을 입력할 필요는 없습니다. 2026-09-08에 Pages CMS에서 샘플 글을 저장한 뒤 자동 배포 성공과 공개 사이트 반영까지 확인했습니다. [실제 CMS 저장으로 실행된 배포](https://github.com/ys143112/ys143112.github.io/actions/runs/34181096120)
+
+Pages CMS의 GitHub App 설치 범위는 `ys143112/ys143112.github.io` 하나입니다. 게시글 목록에는 제목·작성일·카테고리·공개 여부를 표시하고 최신 날짜부터 정렬합니다.
 
 ## 작성 규칙
 

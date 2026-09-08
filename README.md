@@ -21,7 +21,7 @@ npm run build
 
 ## GitHub에 연결
 
-블로그 저장소는 `ys143112/form-to-code`, 기본 주소는 `https://ys143112.github.io/form-to-code/`입니다. 기존에 같은 이름의 저장소가 있다면 덮어쓰지 말고 다른 새 저장소 이름을 선택하세요.
+블로그 저장소는 `ys143112/ys143112.github.io`, 기본 주소는 `https://ys143112.github.io/`입니다. 이 저장소에 연결된 후에는 초기 연결 스크립트를 다시 실행하지 않고 CMS에서 글을 작성하면 됩니다.
 
 1. GitHub에서 공개 저장소를 만듭니다. GitHub Pages의 무료 구성은 공개 저장소 기준입니다.
 2. 이 프로젝트 전체를 올립니다. `.github`, `.pages.yml` 같은 숨김 파일과 `package-lock.json`도 포함합니다. `node_modules`, `dist`, `.env`는 올리지 않습니다.

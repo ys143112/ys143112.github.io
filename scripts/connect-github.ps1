@@ -1,5 +1,5 @@
 param(
-  [string]$Repository = 'ys143112/form-to-code'
+  [string]$Repository = 'ys143112/ys143112.github.io'
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
